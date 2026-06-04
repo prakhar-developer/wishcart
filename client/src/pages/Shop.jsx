@@ -122,7 +122,7 @@ const Shop = () => {
     if (sort) params.append('sort', sort)
     if (search) params.append('search', search)
     
-    const res = await axios.get(`http://localhost:5000/api/products?${params}`)
+    const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/products?${params}`)
     setProducts(Array.isArray(res.data) ? res.data : [])
   } catch (error) {
     console.log(error)

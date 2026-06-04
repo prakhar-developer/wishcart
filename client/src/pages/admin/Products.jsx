@@ -93,7 +93,7 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/products')
+      const res = await axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products')
       setProducts(Array.isArray(res.data) ? res.data : [])
     } catch (error) {
       console.log(error)
@@ -115,7 +115,7 @@ const AdminProducts = () => {
       return
     }
     try {
-      await axios.post('http://localhost:5000/api/products', {
+      await axios.post((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products', {
         ...form,
         price: Number(form.price),
         discountPrice: Number(form.discountPrice),
@@ -132,7 +132,7 @@ const AdminProducts = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this product?')) return
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       fetchProducts()

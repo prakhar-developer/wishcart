@@ -69,7 +69,7 @@ const Home = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products')
+        const res = await axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products')
         setProducts(Array.isArray(res.data) ? res.data.slice(0, 8) : [])
       } catch (err) {
         console.error('Error fetching featured products:', err)
@@ -128,7 +128,7 @@ const Home = () => {
     try {
       const base64 = imagePreview.split(',')[1]
       const res = await axios.post(
-        'http://localhost:5000/api/recommendations/combo-suggestion',
+        (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/recommendations/combo-suggestion',
         {
           imageBase64: base64,
           mimeType: styleImage.type || 'image/jpeg',

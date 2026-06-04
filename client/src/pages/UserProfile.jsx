@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { useWishlist } from '../context/WishlistContext'
 
-const API = 'http://localhost:5000/api'
+const API = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api'
 
 const C = {
   bg: '#faf9f7',

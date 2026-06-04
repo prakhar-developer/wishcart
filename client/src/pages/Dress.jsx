@@ -19,7 +19,7 @@ const Dress = () => {
   useEffect(() => {
     const fetchDresses = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products?search=dress')
+        const res = await axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products?search=dress')
         setProducts(Array.isArray(res.data) ? res.data : [])
       } catch (error) {
         console.error('Failed to load dress products:', error)

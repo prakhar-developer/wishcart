@@ -55,16 +55,16 @@ const ProductDetail = () => {
     const fetchData = async () => {
       try {
         const [productRes, reviewsRes, productsRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/products/${id}`),
-          axios.get(`http://localhost:5000/api/reviews/${id}`),
-          axios.get('http://localhost:5000/api/products')
+          axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/products/${id}`),
+          axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/reviews/${id}`),
+          axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products')
         ])
         const productData = productRes.data
         setProduct(productData)
         
         // Track product view for AI recommendations
         if (token) {
-           axios.post('http://localhost:5000/api/history/view',
+           axios.post((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/history/view',
             { productId: id },
             { headers: { Authorization: `Bearer ${token}` } }
          ).catch(() => {})
@@ -72,7 +72,7 @@ const ProductDetail = () => {
   
         // Fetch AI recommendations from backend
         try {
-          const similarRes = await axios.get(`http://localhost:5000/api/recommendations/similar/${id}`)
+          const similarRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/recommendations/similar/${id}`)
           if (Array.isArray(similarRes.data.recommendations) && similarRes.data.recommendations.length > 0) {
             setRelated(similarRes.data.recommendations)
           } else {
@@ -109,10 +109,10 @@ const ProductDetail = () => {
 
   const handleReview = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/reviews/${id}`, reviewForm, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/reviews/${id}`, reviewForm, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      const res = await axios.get(`http://localhost:5000/api/reviews/${id}`)
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/reviews/${id}`)
       setReviews(Array.isArray(res.data) ? res.data : [])
       setReviewForm({ rating: 5, comment: '' })
     } catch (error) {

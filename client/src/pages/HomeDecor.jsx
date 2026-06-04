@@ -19,7 +19,7 @@ const HomeDecor = () => {
   useEffect(() => {
     const fetchHomeDecor = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products?category=home-decor')
+        const res = await axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products?category=home-decor')
         setProducts(Array.isArray(res.data) ? res.data : [])
       } catch (error) {
         console.error('Failed to load home decor products:', error)

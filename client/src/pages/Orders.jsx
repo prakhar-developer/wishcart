@@ -23,7 +23,7 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/orders/my-orders', {
+        const res = await axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/orders/my-orders', {
           headers: { Authorization: `Bearer ${token}` }
         })
         setOrders(res.data)

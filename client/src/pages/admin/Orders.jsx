@@ -47,7 +47,7 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/orders', {
+      const res = await axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/orders', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setOrders(Array.isArray(res.data) ? res.data : [])
@@ -60,7 +60,7 @@ const AdminOrders = () => {
 
   const updateStatus = async (id, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/orders/${id}/status`,
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/orders/${id}/status`,
         { orderStatus: status },
         { headers: { Authorization: `Bearer ${token}` } }
       )

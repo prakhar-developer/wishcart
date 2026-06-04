@@ -38,8 +38,8 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [ordersRes, productsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/orders', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:5000/api/products')
+          axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/orders', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products')
         ])
         const orders = Array.isArray(ordersRes.data) ? ordersRes.data : []
         const revenue = orders.reduce((acc, o) => acc + o.totalPrice, 0)
