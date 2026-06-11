@@ -193,15 +193,15 @@ const Shop = () => {
       </section>
 
       {/* ── STICKY FILTER BAR ── */}
-      <nav style={{
+      <nav className="shop-filter-bar" style={{
         position: 'sticky', top: '80px', zIndex: 40,
         backgroundColor: 'rgba(250,249,247,0.95)', backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${C.outlineVariant}40`, padding: '16px 48px',
+        borderBottom: `1px solid ${C.outlineVariant}40`,
       }}>
         {/* Main category tabs + sort/search row */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="shop-filter-row" style={{ marginBottom: '14px' }}>
           {/* Tabs */}
-          <div style={{ display: 'flex', gap: '36px' }}>
+          <div className="shop-category-tabs">
             {mainCategories.map(cat => (
               <button
                 key={cat.value}
@@ -220,7 +220,7 @@ const Shop = () => {
           </div>
 
           {/* Search + Sort */}
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <div className="shop-filter-controls">
             {search && (
               <span style={{ fontSize: '11px', color: C.onSurfaceVariant }}>
                 Results for: <strong style={{ color: C.primary }}>"{search}"</strong>
@@ -275,7 +275,7 @@ const Shop = () => {
       </nav>
 
       {/* ── PRODUCT GRID ── */}
-      <section style={{ padding: '64px 48px 128px', maxWidth: '1920px', margin: '0 auto' }}>
+      <section className="section-responsive" style={{ paddingTop: '64px', paddingBottom: '128px', maxWidth: '1920px', margin: '0 auto' }}>
         {loading ? (
           <Loader />
         ) : displayedProducts.length === 0 ? (
@@ -293,11 +293,9 @@ const Shop = () => {
             </button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '32px' }}>
+          <div className="shop-product-grid">
             {displayedProducts.map((product, index) => {
-              const isLarge = index % 5 === 0
-              const isMedium = index % 5 === 3
-              const colSpan = isLarge ? 8 : isMedium ? 6 : 4
+              const colSpan = 3
               const hovered = hoveredProduct === product._id
 
               return (
@@ -310,7 +308,7 @@ const Shop = () => {
                   {/* Image Wrapper */}
                   <div style={{
                     backgroundColor: C.surface, overflow: 'hidden', borderRadius: '4px', marginBottom: '20px',
-                    aspectRatio: isLarge ? '16/9' : isMedium ? '4/5' : '3/4', position: 'relative',
+                    aspectRatio: '3/4', position: 'relative',
                   }}>
                     <Link to={`/product/${product._id}`}>
                       <img
@@ -365,7 +363,7 @@ const Shop = () => {
                         <p style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurfaceVariant, marginBottom: '4px' }}>
                           {product.subCategory || product.category}
                         </p>
-                        <h3 style={{ fontSize: isLarge ? '1.2rem' : '14px', fontWeight: 300, color: C.onSurface }}>
+                        <h3 style={{ fontSize: '14px', fontWeight: 300, color: C.onSurface }}>
                           {product.name}
                         </h3>
                       </div>
@@ -386,7 +384,7 @@ const Shop = () => {
 
       {/* ── NEWSLETTER ── */}
       <section style={{ padding: '0 48px 96px', maxWidth: '1920px', margin: '0 auto' }}>
-        <div style={{ backgroundColor: C.surface, padding: '80px 128px', borderRadius: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <div className="shop-newsletter-inner" style={{ backgroundColor: C.surface, borderRadius: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.3em', color: C.primary, marginBottom: '20px' }}>
             The WishCart Dispatch
           </span>

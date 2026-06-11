@@ -20,10 +20,10 @@ const AdminLayout = ({ children }) => {
   const navigate = useNavigate()
 
   const navItems = [
+    { label: 'Overview', icon: 'dashboard', path: '/admin' },
     { label: 'Products', icon: 'inventory_2', path: '/admin/products' },
-    { label: 'Reviews', icon: 'rate_review', path: '/admin/reviews' },
     { label: 'Orders', icon: 'local_shipping', path: '/admin/orders' },
-    { label: 'Settings', icon: 'settings', path: '/admin/settings' },
+    { label: 'Users', icon: 'group', path: '/admin/users' },
   ]
 
   const handleLogout = () => {
@@ -67,7 +67,7 @@ const AdminLayout = ({ children }) => {
         <div style={{ borderTop: `1px solid ${C.outlineVariant}20`, paddingTop: '24px' }}>
           <Link to="/"
             style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', marginBottom: '8px', textDecoration: 'none' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: C.onSurfaceVariant }}>help_outline</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: C.onSurfaceVariant }}>storefront</span>
             <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: C.onSurfaceVariant }}>View Store</span>
           </Link>
           <button onClick={handleLogout}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { ordersAPI } from '../utils/api'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 
@@ -79,9 +80,7 @@ const Checkout = () => {
 
     try {
       setLoading(true)
-      await axios.post((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/orders', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+      await ordersAPI.create(payload)
       clearCart()
       navigate('/orders')
     } catch (err) {
@@ -116,11 +115,11 @@ const Checkout = () => {
           <h1 style={{ fontSize: '2.5rem', fontWeight: 300, color: C.onSurface, letterSpacing: '-0.02em' }}>Complete your order</h1>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+        <div className="checkout-layout">
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '24px' }}>
             <div style={{ backgroundColor: '#fff', padding: '32px', borderRadius: '4px', boxShadow: '0 16px 40px rgba(0,0,0,0.04)' }}>
               <h2 style={{ margin: 0, marginBottom: '20px', fontSize: '1.25rem', fontWeight: 500, color: C.onSurface }}>Shipping Details</h2>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="profile-address-grid">
                 {[
                   { key: 'fullName', label: 'Full Name' },
                   { key: 'phone', label: 'Phone' },

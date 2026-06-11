@@ -119,13 +119,13 @@ const Dress = () => {
                 <div key={index} style={{ position: 'relative', overflow: 'hidden', borderRadius: '4px', minHeight: '320px', backgroundColor: C.surface }}>
                   <img
                     src={product?.images?.[0] || (index === 0 ? 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800&q=80' : 'https://images.unsplash.com/photo-1512437131432-7d2ea6b260b4?w=800&q=80')}
-                    alt={product?.name || (index === 0 ? 'Champagne Evening Wear' : 'Atelier Silk Wrap')}
+                    alt={product?.name || (index === 0 ? 'Champagne Evening Wear' : 'Wishcart Silk Wrap')}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.35), transparent)' }} />
                   <div style={{ position: 'absolute', bottom: '24px', left: '24px', color: '#fff', maxWidth: '65%' }}>
-                    <p style={{ margin: 0, fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{product?.category || (index === 0 ? 'Champagne Evening Wear' : 'Atelier Silk Wrap')}</p>
-                    <p style={{ marginTop: '8px', fontSize: '14px', fontWeight: 500 }}>{product?.name || (index === 0 ? 'Lumière Slip Dress' : 'Atelier Silk Wrap')}</p>
+                    <p style={{ margin: 0, fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase' }}>{product?.category || (index === 0 ? 'Champagne Evening Wear' : 'Wishcart Silk Wrap')}</p>
+                    <p style={{ marginTop: '8px', fontSize: '14px', fontWeight: 500 }}>{product?.name || (index === 0 ? 'Lumière Slip Dress' : 'Wishcart Silk Wrap')}</p>
                     {product && (
                       <p style={{ marginTop: '8px', fontSize: '13px', fontWeight: 400 }}>₹{product.discountPrice > 0 ? product.discountPrice : product.price}</p>
                     )}

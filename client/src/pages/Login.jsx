@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authAPI } from '../utils/api'
 import { useAuth } from '../context/AuthContext'
+import axios from 'axios'
 
 const C = {
   bg: '#faf9f7',
@@ -17,11 +18,17 @@ const C = {
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' })
+  const [useOtp, setUseOtp] = useState(false)
+  const [otpSent, setOtpSent] = useState(false)
+  const [otpCode, setOtpCode] = useState('')
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const { login } = useAuth()
   const navigate = useNavigate()
+  const callbackRef = useRef(null)
 
+  // Clear states on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('wishcart_login_email')
@@ -30,9 +37,127 @@ const Login = () => {
     setForm({ email: '', password: '' })
   }, [])
 
+  const handleGoogleCallback = useCallback(async (response) => {
+    setLoading(true)
+    setError('')
+    setMessage('')
+    try {
+      const res = await authAPI.googleLogin({ token: response.credential })
+      login(res.data.user, res.data.token)
+      navigate('/')
+    } catch (err) {
+      console.error(err)
+      setError(err.response?.data?.message || 'Google authentication failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }, [login, navigate])
+
+  // Keep callback ref updated so the global handler always uses latest closure
+  useEffect(() => {
+    callbackRef.current = handleGoogleCallback
+  }, [handleGoogleCallback])
+
+  // Google Login Initialization
+  useEffect(() => {
+    const initGoogle = () => {
+      const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+      if (!clientId) {
+        console.warn('Google Client ID is missing in .env.local')
+        return
+      }
+
+      const btnEl = document.getElementById('google-signin-btn')
+      if (!window.google || !btnEl) return
+
+      // Only initialize the GIS SDK once globally across the entire app
+      if (!window.__gsi_initialized) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: (resp) => {
+              // Delegate to whichever page component is currently mounted
+              if (callbackRef.current) callbackRef.current(resp)
+            },
+          })
+          window.__gsi_initialized = true
+        } catch (err) {
+          console.error('Failed to initialize Google Sign-In:', err)
+          return
+        }
+      }
+
+      // Always render the button for this page instance
+      try {
+        window.google.accounts.id.renderButton(btnEl, { 
+          theme: 'outline', 
+          size: 'large', 
+          width: 400,
+          text: 'continue_with',
+          logo_alignment: 'left'
+        })
+      } catch (err) {
+        console.error('Failed to render Google button:', err)
+      }
+    }
+
+    // Try initializing, or retry if script hasn't loaded yet
+    initGoogle()
+    const timer = setTimeout(initGoogle, 1000)
+    return () => clearTimeout(timer)
+  }, [])
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
-  const validateForm = () => {
+  const handleSendOtp = async (e) => {
+    e.preventDefault()
+    if (!form.email.trim()) {
+      setError('Email is required')
+      return
+    }
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setMessage('')
+    try {
+      await authAPI.sendOtp({ email: form.email.toLowerCase() })
+      setOtpSent(true)
+      setMessage('Verification code sent to your email. Check your inbox!')
+    } catch (err) {
+      console.error(err)
+      setError(err.response?.data?.message || 'Failed to send verification code. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault()
+    if (!otpCode || otpCode.length !== 6) {
+      setError('Please enter a valid 6-digit verification code')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+    setMessage('')
+    try {
+      const res = await authAPI.loginOtp({ email: form.email.toLowerCase(), otp: otpCode })
+      login(res.data.user, res.data.token)
+      navigate('/')
+    } catch (err) {
+      console.error(err)
+      setError(err.response?.data?.message || 'Verification failed. Please check your code.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const validatePasswordForm = () => {
     if (!form.email.trim()) {
       setError('Email is required')
       return false
@@ -45,19 +170,16 @@ const Login = () => {
       setError('Password is required')
       return false
     }
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters')
-      return false
-    }
     return true
   }
 
-  const handleSubmit = async (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault()
-    if (!validateForm()) return
+    if (!validatePasswordForm()) return
 
     setLoading(true)
     setError('')
+    setMessage('')
     try {
       const res = await authAPI.login(form)
       login(res.data.user, res.data.token)
@@ -110,15 +232,15 @@ const Login = () => {
       </section>
 
       {/* Right — Form */}
-      <section style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '48px', position: 'relative', backgroundColor: C.bg }}>
+      <section className="auth-form-section" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative', backgroundColor: C.bg }}>
 
-        <Link to="/" style={{ position: 'absolute', top: '32px', left: '32px', color: C.onSurface, fontSize: '16px', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none' }}>
+        <Link to="/" className="auth-brand-top" style={{ position: 'absolute', top: '32px', left: '32px', color: C.onSurface, fontSize: '16px', fontWeight: 300, letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none' }}>
           WISHCART
         </Link>
 
         <div style={{ width: '100%', maxWidth: '400px' }}>
 
-          <div style={{ marginBottom: '48px' }}>
+          <div style={{ marginBottom: '36px' }}>
             <h2 style={{ fontSize: '2rem', fontWeight: 300, letterSpacing: '-0.02em', color: C.onSurface, marginBottom: '8px' }}>
               Welcome back
             </h2>
@@ -127,37 +249,74 @@ const Login = () => {
             </p>
           </div>
 
+          {/* Login Mode Toggle Tabs */}
+          <div style={{ display: 'flex', borderBottom: `1px solid ${C.outlineVariant}20`, marginBottom: '32px' }}>
+            <button
+              type="button"
+              onClick={() => { setUseOtp(false); setError(''); setMessage('') }}
+              style={{ flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: !useOtp ? `2px solid ${C.primary}` : 'none', color: !useOtp ? C.onSurface : C.onSurfaceVariant, fontSize: '11px', fontWeight: !useOtp ? 600 : 400, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer' }}>
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUseOtp(true); setError(''); setMessage('') }}
+              style={{ flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: useOtp ? `2px solid ${C.primary}` : 'none', color: useOtp ? C.onSurface : C.onSurfaceVariant, fontSize: '11px', fontWeight: useOtp ? 600 : 400, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer' }}>
+              OTP Code Login
+            </button>
+          </div>
+
           {error && (
             <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: '#fe8b7020', borderRadius: '2px' }}>
               <p style={{ fontSize: '12px', color: '#9e422c' }}>{error}</p>
             </div>
           )}
 
-          <form autoComplete="off" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginBottom: '32px' }}>
-            {[
-              { label: 'Email Address', name: 'email', type: 'email', placeholder: 'your@email.com', autoComplete: 'email' },
-              { label: 'Password', name: 'password', type: 'password', placeholder: '••••••••', autoComplete: 'current-password' },
-            ].map(field => (
-              <div key={field.name}>
+          {message && (
+            <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: '#e2f0d9', borderRadius: '2px' }}>
+              <p style={{ fontSize: '12px', color: '#3b6e22' }}>{message}</p>
+            </div>
+          )}
+
+          {/* Conditional Forms */}
+          {!useOtp ? (
+            /* PASSWORD FORM */
+            <form onSubmit={handlePasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginBottom: '32px' }}>
+              <div>
                 <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurfaceVariant, marginBottom: '8px' }}>
-                  {field.label}
+                  Email Address
                 </label>
                 <input
-                  type={field.type}
-                  name={field.name}
-                  value={form[field.name]}
+                  type="email"
+                  name="email"
+                  value={form.email}
                   onChange={handleChange}
-                  placeholder={field.placeholder}
-                  autoComplete={field.autoComplete}
+                  placeholder="your@email.com"
+                  autoComplete="email"
                   required
                   style={{ width: '100%', backgroundColor: 'transparent', border: 'none', borderBottom: `1px solid ${C.outlineVariant}40`, padding: '12px 4px', fontSize: '14px', color: C.onSurface, outline: 'none', fontFamily: 'Manrope', fontWeight: 300 }}
                   onFocus={e => e.target.style.borderBottomColor = C.primary}
                   onBlur={e => e.target.style.borderBottomColor = `${C.outlineVariant}40`}
                 />
               </div>
-            ))}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurfaceVariant, marginBottom: '8px' }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                  style={{ width: '100%', backgroundColor: 'transparent', border: 'none', borderBottom: `1px solid ${C.outlineVariant}40`, padding: '12px 4px', fontSize: '14px', color: C.onSurface, outline: 'none', fontFamily: 'Manrope', fontWeight: 300 }}
+                  onFocus={e => e.target.style.borderBottomColor = C.primary}
+                  onBlur={e => e.target.style.borderBottomColor = `${C.outlineVariant}40`}
+                />
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
@@ -166,30 +325,91 @@ const Login = () => {
                 onMouseLeave={e => { e.target.style.backgroundColor = loading ? C.outlineVariant : C.primary; e.target.style.transform = 'translateY(0)' }}>
                 {loading ? 'Signing in...' : 'Sign In'}
               </button>
+            </form>
+          ) : (
+            /* OTP FORM */
+            <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginBottom: '32px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurfaceVariant, marginBottom: '8px' }}>
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="your@email.com"
+                  autoComplete="email"
+                  required
+                  disabled={otpSent}
+                  style={{ width: '100%', backgroundColor: 'transparent', border: 'none', borderBottom: `1px solid ${C.outlineVariant}40`, padding: '12px 4px', fontSize: '14px', color: C.onSurface, outline: 'none', fontFamily: 'Manrope', fontWeight: 300, opacity: otpSent ? 0.6 : 1 }}
+                  onFocus={e => e.target.style.borderBottomColor = C.primary}
+                  onBlur={e => e.target.style.borderBottomColor = `${C.outlineVariant}40`}
+                />
+              </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ flex: 1, height: '1px', backgroundColor: `${C.outlineVariant}20` }} />
-              <span style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.onSurfaceVariant }}>
-                Or continue with
-              </span>
-              <div style={{ flex: 1, height: '1px', backgroundColor: `${C.outlineVariant}20` }} />
-            </div>
+              {otpSent && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label style={{ display: 'block', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurfaceVariant }}>
+                      Verification Code (OTP)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      style={{ background: 'none', border: 'none', color: C.primary, fontSize: '10px', cursor: 'pointer', textDecoration: 'underline' }}>
+                      Resend Code
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={otpCode}
+                    onChange={e => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                    placeholder="Enter 6-digit code"
+                    required
+                    style={{ width: '100%', backgroundColor: 'transparent', border: 'none', borderBottom: `1px solid ${C.outlineVariant}40`, padding: '12px 4px', fontSize: '16px', letterSpacing: '0.3em', textAlign: 'center', color: C.onSurface, outline: 'none', fontFamily: 'monospace' }}
+                    onFocus={e => e.target.style.borderBottomColor = C.primary}
+                    onBlur={e => e.target.style.borderBottomColor = `${C.outlineVariant}40`}
+                  />
+                </div>
+              )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              {['Google', 'Apple'].map(provider => (
-                <button key={provider}
+              <button
+                type="submit"
+                disabled={loading}
+                style={{ width: '100%', backgroundColor: loading ? C.outlineVariant : C.primary, color: '#fff6ef', padding: '16px', border: 'none', borderRadius: '2px', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.2em', cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'Manrope', transition: 'all 0.3s' }}
+                onMouseEnter={e => { if (!loading) { e.target.style.backgroundColor = C.primaryDim; e.target.style.transform = 'translateY(-2px)' } }}
+                onMouseLeave={e => { e.target.style.backgroundColor = loading ? C.outlineVariant : C.primary; e.target.style.transform = 'translateY(0)' }}>
+                {loading ? 'Processing...' : otpSent ? 'Verify & Sign In' : 'Send Login Code'}
+              </button>
+
+              {otpSent && (
+                <button
                   type="button"
-                  style={{ padding: '12px 16px', backgroundColor: C.surface, border: 'none', borderRadius: '2px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurface, cursor: 'pointer', fontFamily: 'Manrope', transition: 'background-color 0.2s' }}
-                  onMouseEnter={e => e.target.style.backgroundColor = C.surfaceContainerHigh}
-                  onMouseLeave={e => e.target.style.backgroundColor = C.surface}>
-                  {provider}
+                  onClick={() => { setOtpSent(false); setOtpCode(''); setError(''); setMessage('') }}
+                  style={{ background: 'none', border: 'none', color: C.onSurfaceVariant, fontSize: '11px', cursor: 'pointer', fontFamily: 'Manrope', textAlign: 'center', marginTop: '-8px' }}>
+                  Change Email Address
                 </button>
-              ))}
-            </div>
-            </div>
-          </form>
+              )}
+            </form>
+          )}
 
-          <p style={{ textAlign: 'center', marginTop: '48px', fontSize: '12px', color: C.onSurfaceVariant }}>
+          {/* Social Divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ flex: 1, height: '1px', backgroundColor: `${C.outlineVariant}20` }} />
+            <span style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.onSurfaceVariant }}>
+              Or continue with
+            </span>
+            <div style={{ flex: 1, height: '1px', backgroundColor: `${C.outlineVariant}20` }} />
+          </div>
+
+          {/* Social Sign-In (Apple Removed, Google Rendered Natively) */}
+          <div style={{ display: 'flex', justifyContent: 'center', minHeight: '40px', width: '100%', marginBottom: '24px' }}>
+            <div id="google-signin-btn" style={{ width: '100%' }}></div>
+          </div>
+
+          <p style={{ textAlign: 'center', marginTop: '36px', fontSize: '12px', color: C.onSurfaceVariant }}>
             Don't have an account?{' '}
             <Link to="/signup" style={{ color: C.primary, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
               Create one

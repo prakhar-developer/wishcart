@@ -92,23 +92,36 @@ router.get('/for-you', auth, async (req, res) => {
       ${tasteContext}
       
       Analyze their interests — what categories, styles, and price ranges they prefer.
-      Then recommend the 6 most relevant products from our store:
+      Then recommend up to 6 most relevant products from our store:
       ${JSON.stringify(productList, null, 2)}
       
-      Return ONLY a valid JSON array of exactly 6 product ids.
+      Return ONLY a valid JSON array of up to 6 product ids.
       Example: ["id1", "id2", "id3", "id4", "id5", "id6"]
       No explanation. No markdown. Just the raw JSON array.
     `;
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().replace(/```json|```/g, '').trim();
-    const recommendedIds = JSON.parse(text);
-    const recommended = allProducts.filter(p => recommendedIds.includes(p._id.toString()));
+    let recommended = [];
+    try {
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      const match = text.match(/\[.*\]/s);
+      const cleanText = match ? match[0] : text.replace(/```json|```/g, '').trim();
+      const recommendedIds = JSON.parse(cleanText);
+      recommended = allProducts.filter(p => recommendedIds.includes(p._id.toString()));
+    } catch (aiError) {
+      console.error('AI fallback for for-you page:', aiError.message);
+      recommended = allProducts.slice(0, 6);
+    }
+
+    if (recommended.length === 0) {
+      recommended = allProducts.slice(0, 6);
+    }
 
     res.json({ recommendations: recommended, tasteContext });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('For you page error:', error);
+    res.status(500).json({ message: 'Failed to load recommendations', error: error.message });
   }
 });
 

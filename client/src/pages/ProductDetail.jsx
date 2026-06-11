@@ -127,13 +127,13 @@ const ProductDetail = () => {
     <div style={{ backgroundColor: C.bg, fontFamily: 'Manrope', color: C.onSurface, paddingTop: '80px' }}>
 
       {/* Product Section */}
-      <section style={{ maxWidth: '1920px', margin: '0 auto', padding: '48px', display: 'flex', gap: '96px', alignItems: 'flex-start' }}>
+      <section className="section-responsive product-detail-layout" style={{ maxWidth: '1920px', margin: '0 auto', paddingTop: '48px', paddingBottom: '48px' }}>
 
         {/* Left — Editorial Gallery */}
-        <div style={{ flex: '0 0 58%', display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Main Image */}
-          <div style={{ gridColumn: 'span 11', marginBottom: '32px' }}>
+          <div style={{ marginBottom: '16px' }}>
             <img
               src={product.images?.[activeImage] || 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=800'}
               alt={product.name}
@@ -143,8 +143,8 @@ const ProductDetail = () => {
 
           {/* Thumbnail Images */}
           {product.images?.length > 1 && (
-            <div style={{ gridColumn: '1 / span 6', marginLeft: '48px', marginTop: '-80px', zIndex: 10, position: 'relative' }}>
-              <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ zIndex: 10, position: 'relative' }}>
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px' }}>
                 {product.images.map((img, i) => (
                   <button key={i} onClick={() => setActiveImage(i)}
                     style={{ border: 'none', padding: 0, cursor: 'pointer', flex: 1 }}>
@@ -158,7 +158,7 @@ const ProductDetail = () => {
         </div>
 
         {/* Right — Product Info */}
-        <div style={{ flex: 1, paddingTop: '24px' }}>
+        <div style={{ paddingTop: '24px' }}>
           <span style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.onSurfaceVariant, display: 'block', marginBottom: '16px' }}>
             Collection 01 / {product.category}
           </span>
@@ -282,8 +282,8 @@ const ProductDetail = () => {
       </section>
 
       {/* Material Story Section */}
-      <section style={{ marginTop: '128px', backgroundColor: C.surface, padding: '128px 48px' }}>
-        <div style={{ maxWidth: '1920px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '96px', alignItems: 'center' }}>
+      <section className="section-responsive" style={{ marginTop: '128px', backgroundColor: C.surface, paddingTop: '128px', paddingBottom: '128px' }}>
+        <div className="material-story-grid" style={{ maxWidth: '1920px', margin: '0 auto' }}>
           <div style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', top: '-48px', left: '-48px', width: '192px', height: '192px', backgroundColor: `${C.primaryContainer}20`, borderRadius: '50%', filter: 'blur(48px)' }} />
             <img
@@ -308,14 +308,14 @@ const ProductDetail = () => {
 
       {/* Reviews Section */}
       {(reviews.length > 0 || token) && (
-        <section style={{ maxWidth: '1920px', margin: '0 auto', padding: '96px 48px' }}>
+        <section className="section-responsive" style={{ maxWidth: '1920px', margin: '0 auto', paddingTop: '96px', paddingBottom: '96px' }}>
           <h3 style={{ fontSize: '2rem', fontWeight: 300, color: C.onSurface, marginBottom: '48px' }}>
             Reviews {reviews.length > 0 && `(${reviews.length})`}
           </h3>
 
           {/* Add Review */}
           {token && (
-            <div style={{ backgroundColor: C.surface, padding: '48px', borderRadius: '4px', marginBottom: '48px' }}>
+            <div style={{ backgroundColor: C.surface, padding: '32px', borderRadius: '4px', marginBottom: '48px' }}>
               <h4 style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.onSurface, marginBottom: '32px' }}>
                 Write a Review
               </h4>
@@ -365,8 +365,8 @@ const ProductDetail = () => {
 
       {/* AI Stylist Curated Matches */}
       {related.length > 0 && (
-        <section style={{ maxWidth: '1920px', margin: '0 auto', padding: '0 48px 128px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '64px' }}>
+        <section className="section-responsive" style={{ maxWidth: '1920px', margin: '0 auto', paddingBottom: '128px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '64px', flexWrap: 'wrap', gap: '16px' }}>
             <div>
               <span style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.onSurfaceVariant, display: 'block', marginBottom: '16px' }}>
                 AI Stylist Curated Matches
@@ -378,7 +378,7 @@ const ProductDetail = () => {
             </Link>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '48px' }}>
+          <div className="related-products-grid">
             {related.map((item, i) => (
               <Link key={item._id} to={`/product/${item._id}`}
                 style={{ textDecoration: 'none', marginTop: i === 2 ? '48px' : 0 }}>

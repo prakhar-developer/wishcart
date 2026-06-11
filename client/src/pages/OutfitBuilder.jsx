@@ -33,6 +33,7 @@ const OutfitBuilder = () => {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiStyle, setAiStyle] = useState('streetwear')
   const [aiBudget, setAiBudget] = useState('2000')
+  const [aiScope, setAiScope] = useState('current')
   const [aiMessage, setAiMessage] = useState('')
   const { addToCart } = useCart()
   const { token } = useAuth()
@@ -82,46 +83,57 @@ const OutfitBuilder = () => {
   }
 
   const runLocalFallback = () => {
-    const list = products[activeTab] || []
-    if (list.length === 0) {
-      setAiMessage('No products available in this category.')
-      return
+    const doFallback = (tab) => {
+      const list = products[tab] || []
+      if (list.length === 0) return null
+
+      const scored = list.map(product => {
+        let score = 0
+        const tags = product.tags || []
+        const styleLower = aiStyle.toLowerCase()
+        
+        if (tags.some(t => t.toLowerCase() === styleLower)) {
+          score += 10
+        } else if (tags.some(t => t.toLowerCase().includes(styleLower) || styleLower.includes(t.toLowerCase()))) {
+          score += 5
+        }
+        if (product.name.toLowerCase().includes(styleLower) || product.description.toLowerCase().includes(styleLower)) {
+          score += 5
+        }
+
+        const price = product.discountPrice > 0 ? product.discountPrice : product.price
+        const budgetNum = Number(aiBudget) || 2000
+        if (price <= budgetNum) {
+          score += 8 + (price / budgetNum) * 3
+        } else {
+          score -= 10
+        }
+
+        if (product.ratings) score += product.ratings
+        if (product.isFeatured) score += 2
+
+        return { product, score }
+      })
+
+      scored.sort((a, b) => b.score - a.score)
+      return scored[0].product
     }
 
-    const scored = list.map(product => {
-      let score = 0
-      const tags = product.tags || []
-      const styleLower = aiStyle.toLowerCase()
-      
-      if (tags.some(t => t.toLowerCase() === styleLower)) {
-        score += 10
-      } else if (tags.some(t => t.toLowerCase().includes(styleLower) || styleLower.includes(t.toLowerCase()))) {
-        score += 5
-      }
-      if (product.name.toLowerCase().includes(styleLower) || product.description.toLowerCase().includes(styleLower)) {
-        score += 5
-      }
-
-      const price = product.discountPrice > 0 ? product.discountPrice : product.price
-      const budgetNum = Number(aiBudget) || 2000
-      if (price <= budgetNum) {
-        score += 8
-        score += (price / budgetNum) * 3
+    if (aiScope === 'full') {
+      const top = doFallback('tops')
+      const bottom = doFallback('jeans')
+      const acc = doFallback('accessories')
+      setSelected({ tops: top || null, jeans: bottom || null, accessories: acc || null })
+      setAiMessage(`✦ AI Style Matcher selected a full ${aiStyle} ensemble!`)
+    } else {
+      const bestMatch = doFallback(activeTab)
+      if (bestMatch) {
+        setSelected(prev => ({ ...prev, [activeTab]: bestMatch }))
+        setAiMessage(`✦ AI Style Matcher selected "${bestMatch.name}" for your ${aiStyle} vibe!`)
       } else {
-        score -= 10
+        setAiMessage('No products available in this category.')
       }
-
-      if (product.ratings) score += product.ratings
-      if (product.isFeatured) score += 2
-
-      return { product, score }
-    })
-
-    scored.sort((a, b) => b.score - a.score)
-    const bestMatch = scored[0].product
-
-    setSelected(prev => ({ ...prev, [activeTab]: bestMatch }))
-    setAiMessage(`✦ AI Style Matcher selected "${bestMatch.name}" for your ${aiStyle} vibe!`)
+    }
   }
 
   const handleAIRecommend = async () => {
@@ -132,22 +144,35 @@ const OutfitBuilder = () => {
     setAiLoading(true)
     setAiMessage('')
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/recommendations`, {
-        params: {
-          category: activeTab,
-          style: aiStyle,
-          budget: aiBudget,
-          occasion: 'casual',
-          gender: 'unisex'
-        },
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      const recommended = res.data.recommendations
-      if (recommended && recommended.length > 0) {
-        setSelected(prev => ({ ...prev, [activeTab]: recommended[0] }))
-        setAiMessage(`✦ AI picked "${recommended[0].name}" for your ${aiStyle} look!`)
+      if (aiScope === 'full') {
+        const [topsRes, jeansRes, accRes] = await Promise.all([
+          axios.get(`${API_BASE_URL}/api/recommendations`, { params: { category: 'tops', style: aiStyle, budget: aiBudget, occasion: 'casual', gender: 'unisex' }, headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { recommendations: [] } })),
+          axios.get(`${API_BASE_URL}/api/recommendations`, { params: { category: 'jeans', style: aiStyle, budget: aiBudget, occasion: 'casual', gender: 'unisex' }, headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { recommendations: [] } })),
+          axios.get(`${API_BASE_URL}/api/recommendations`, { params: { category: 'accessories', style: aiStyle, budget: aiBudget, occasion: 'casual', gender: 'unisex' }, headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { recommendations: [] } }))
+        ])
+        
+        const top = topsRes.data.recommendations?.[0]
+        const bottom = jeansRes.data.recommendations?.[0]
+        const acc = accRes.data.recommendations?.[0]
+        
+        if (top || bottom || acc) {
+          setSelected({ tops: top || null, jeans: bottom || null, accessories: acc || null })
+          setAiMessage(`✦ AI curated a full ${aiStyle} ensemble for you!`)
+        } else {
+          runLocalFallback()
+        }
       } else {
-        runLocalFallback()
+        const res = await axios.get(`${API_BASE_URL}/api/recommendations`, {
+          params: { category: activeTab, style: aiStyle, budget: aiBudget, occasion: 'casual', gender: 'unisex' },
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const recommended = res.data.recommendations
+        if (recommended && recommended.length > 0) {
+          setSelected(prev => ({ ...prev, [activeTab]: recommended[0] }))
+          setAiMessage(`✦ AI picked "${recommended[0].name}" for your ${aiStyle} look!`)
+        } else {
+          runLocalFallback()
+        }
       }
     } catch (error) {
       console.log('AI recommendation endpoint failed, running fallback heuristic:', error)
@@ -221,7 +246,7 @@ const OutfitBuilder = () => {
           {/* AI Suggest Bar */}
           <div style={{ marginBottom: '28px', padding: '20px', backgroundColor: C.surface, borderRadius: '4px', border: `1px solid ${C.outlineVariant}20` }}>
             <p style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: C.tertiary, marginBottom: '14px' }}>
-              ✦ AI Stylist — Auto-pick for current tab
+              ✦ AI Stylist — Auto-pick Outfit
             </p>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <select value={aiStyle} onChange={e => setAiStyle(e.target.value)}
@@ -232,6 +257,11 @@ const OutfitBuilder = () => {
                 <option value="y2k">Y2K</option>
                 <option value="vintage">Vintage</option>
                 <option value="smart casual">Smart Casual</option>
+              </select>
+              <select value={aiScope} onChange={e => setAiScope(e.target.value)}
+                style={{ width: '130px', padding: '10px 12px', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', border: `1px solid ${C.outlineVariant}40`, borderRadius: '2px', backgroundColor: 'white', color: C.onSurface, fontFamily: 'Manrope', cursor: 'pointer' }}>
+                <option value="current">Current Tab</option>
+                <option value="full">Full Outfit</option>
               </select>
               <input
                 type="number"

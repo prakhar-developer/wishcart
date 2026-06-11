@@ -11,107 +11,213 @@ const Navbar = () => {
   const { wishlist } = useWishlist()
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
+    setMobileOpen(false)
     navigate('/')
   }
+
   const handleSearch = (e) => {
-  e.preventDefault()
-  if (searchQuery.trim()) {
-    // Track search for AI recommendations
-    if (token) {
-      axios.post((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/history/search',
-        { query: searchQuery.trim() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      ).catch(() => {})
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      if (token) {
+        axios.post((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/history/search',
+          { query: searchQuery.trim() },
+          { headers: { Authorization: `Bearer ${token}` } }
+        ).catch(() => {})
+      }
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery('')
+      setMobileOpen(false)
     }
-    navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`)
-    setSearchQuery('')
   }
-}
+
+  const navTo = (path) => {
+    setMobileOpen(false)
+    navigate(path)
+  }
 
   return (
-    <nav style={{
-      position: 'fixed', top: 0, width: '100%', zIndex: 50,
-      backgroundColor: 'rgba(250,249,247,0.85)',
-      backdropFilter: 'blur(20px)',
-      padding: '20px 48px',
-      fontFamily: 'Manrope'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1920px', margin: '0 auto' }}>
+    <>
+      <nav className="navbar-container" style={{
+        position: 'fixed', top: 0, width: '100%', zIndex: 50,
+        backgroundColor: 'rgba(250,249,247,0.85)',
+        backdropFilter: 'blur(20px)',
+        fontFamily: 'Manrope'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1920px', margin: '0 auto' }}>
 
-        <Link to="/" style={{ color: '#2f3331', textDecoration: 'none', fontSize: '16px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 300 }}>
-          WishCart
-        </Link>
+          <Link to="/" style={{ color: '#2f3331', textDecoration: 'none', fontSize: '16px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 300, flexShrink: 0 }}>
+            WishCart
+          </Link>
 
-        <div style={{ display: 'flex', gap: '40px' }}>
-          {[
-            { label: 'Home ', path: '/' },
-            { label: 'New Arrivals', path: '/shop' },
-            { label: 'Outfit Builder', path: '/outfit-builder' },
-            { label: 'For You', path: '/for-you' },
-          ].map(item => (
-            <Link key={item.path} to={item.path} style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500 }}>
-              {item.label}
+          {/* Desktop Navigation Links */}
+          <div className="navbar-links">
+            {[
+              { label: 'Home', path: '/' },
+              { label: 'New Arrivals', path: '/shop' },
+              { label: 'Outfit Builder', path: '/outfit-builder' },
+              { label: 'For You', path: '/for-you' },
+            ].map(item => (
+              <Link key={item.path} to={item.path} style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 500 }}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop Search Bar */}
+          <form onSubmit={handleSearch} className="navbar-search" style={{ alignItems: 'center', border: '1px solid #d9c9b3', borderRadius: '2px', overflow: 'hidden', backgroundColor: '#fff' }}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products"
+              style={{
+                border: 'none', outline: 'none', padding: '8px 14px',
+                fontSize: '11px', fontFamily: 'Manrope', color: '#2f3331',
+                backgroundColor: 'transparent', width: '180px', letterSpacing: '0.05em'
+              }}
+            />
+            <button type="submit" style={{
+              border: 'none', cursor: 'pointer', backgroundColor: '#6c5c47',
+              padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </form>
+
+          {/* Desktop Actions */}
+          <div className="navbar-actions">
+            <Link to="/wishlist" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Wishlist {wishlist.length > 0 && `(${wishlist.length})`}
             </Link>
-          ))}
-        </div>
+            <Link to="/cart" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Bag {cartCount > 0 && `(${cartCount})`}
+            </Link>
+            {user ? (
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                {user.role === 'admin' && (
+                  <Link to="/admin" style={{ color: '#6c5c47', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin</Link>
+                )}
+                <Link to="/orders" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Orders</Link>
+                <Link to="/profile" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Profile</Link>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5c605d', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'Manrope' }}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <Link to="/login" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sign In</Link>
+                <Link to="/signup" style={{ backgroundColor: '#6c5c47', color: 'white', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '12px 24px' }}>
+                  Join
+                </Link>
+              </div>
+            )}
+          </div>
 
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', border: '1px solid #d9c9b3', borderRadius: '2px', overflow: 'hidden', backgroundColor: '#fff' }}>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search products"
-            style={{
-              border: 'none', outline: 'none', padding: '8px 14px',
-              fontSize: '11px', fontFamily: 'Manrope', color: '#2f3331',
-              backgroundColor: 'transparent', width: '180px', letterSpacing: '0.05em'
-            }}
-          />
-          <button type="submit" style={{
-            border: 'none', cursor: 'pointer', backgroundColor: '#6c5c47',
-            padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
-            {/* Search SVG icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
+          {/* Mobile Hamburger Button */}
+          <button className="navbar-hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>menu</span>
           </button>
-        </form>
+        </div>
+      </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <Link to="/wishlist" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+      {/* ── Mobile Slide-out Menu ── */}
+      <div className={`mobile-menu-overlay ${mobileOpen ? 'active' : ''}`} onClick={() => setMobileOpen(false)}>
+        <div className="mobile-menu" onClick={e => e.stopPropagation()}>
+          {/* Close */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 300, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#2f3331' }}>WishCart</span>
+            <button onClick={() => setMobileOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2f3331' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>close</span>
+            </button>
+          </div>
+
+          {/* Search */}
+          <form onSubmit={handleSearch} className="mobile-search">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+            />
+            <button type="submit">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+          </form>
+
+          {/* Nav Links */}
+          <button className="mobile-link" onClick={() => navTo('/')}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>home</span>
+            Home
+          </button>
+          <button className="mobile-link" onClick={() => navTo('/shop')}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>storefront</span>
+            New Arrivals
+          </button>
+          <button className="mobile-link" onClick={() => navTo('/outfit-builder')}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>auto_awesome</span>
+            Outfit Builder
+          </button>
+          <button className="mobile-link" onClick={() => navTo('/for-you')}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>recommend</span>
+            For You
+          </button>
+
+          <div style={{ height: '1px', backgroundColor: 'rgba(175,179,176,0.2)', margin: '8px 0' }} />
+
+          <button className="mobile-link" onClick={() => navTo('/wishlist')}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>favorite</span>
             Wishlist {wishlist.length > 0 && `(${wishlist.length})`}
-          </Link>
-          <Link to="/cart" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          </button>
+          <button className="mobile-link" onClick={() => navTo('/cart')}>
+            <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>shopping_bag</span>
             Bag {cartCount > 0 && `(${cartCount})`}
-          </Link>
+          </button>
+
           {user ? (
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <>
+              <button className="mobile-link" onClick={() => navTo('/orders')}>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>package_2</span>
+                My Orders
+              </button>
+              <button className="mobile-link" onClick={() => navTo('/profile')}>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>person</span>
+                Profile
+              </button>
               {user.role === 'admin' && (
-                <Link to="/admin" style={{ color: '#6c5c47', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Admin</Link>
+                <button className="mobile-link" onClick={() => navTo('/admin')}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#6c5c47' }}>admin_panel_settings</span>
+                  Admin Panel
+                </button>
               )}
-              <Link to="/orders" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Orders</Link>
-              <Link to="/profile" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Profile</Link>  
-              <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5c605d', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'Manrope' }}>
+              <div style={{ height: '1px', backgroundColor: 'rgba(175,179,176,0.2)', margin: '8px 0' }} />
+              <button className="mobile-link" onClick={handleLogout} style={{ color: '#9e422c' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#9e422c' }}>logout</span>
                 Logout
               </button>
-            </div>
+            </>
           ) : (
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Link to="/login" style={{ color: '#5c605d', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Sign In</Link>
-              <Link to="/signup" style={{ backgroundColor: '#6c5c47', color: 'white', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '12px 24px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+              <button onClick={() => navTo('/login')} style={{ flex: 1, padding: '14px', border: '1px solid #6c5c47', backgroundColor: 'transparent', color: '#6c5c47', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'Manrope', fontWeight: 600 }}>
+                Sign In
+              </button>
+              <button onClick={() => navTo('/signup')} style={{ flex: 1, padding: '14px', border: 'none', backgroundColor: '#6c5c47', color: '#fff', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', fontFamily: 'Manrope', fontWeight: 600 }}>
                 Join
-              </Link>
+              </button>
             </div>
           )}
         </div>
       </div>
-    </nav>
+    </>
   )
 }
 

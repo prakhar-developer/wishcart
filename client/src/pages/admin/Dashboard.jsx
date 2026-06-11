@@ -19,7 +19,7 @@ const C = {
 }
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ orders: 0, products: 0, revenue: 0 })
+  const [stats, setStats] = useState({ orders: 0, products: 0, revenue: 0, users: 0 })
   const [recentOrders, setRecentOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const { token, loading: authLoading, user } = useAuth()
@@ -37,20 +37,30 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ordersRes, productsRes] = await Promise.all([
+        const [ordersRes, productsRes, usersRes] = await Promise.all([
           axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/orders', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products')
+          axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/products'),
+          axios.get((import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000') + '/api/users/admin/list?limit=1', { headers: { Authorization: `Bearer ${token}` } })
         ])
+        
         const orders = Array.isArray(ordersRes.data) ? ordersRes.data : []
         const revenue = orders.reduce((acc, o) => acc + o.totalPrice, 0)
-        setStats({ orders: orders.length, products: Array.isArray(productsRes.data) ? productsRes.data.length : 0, revenue })
+        
+        setStats({ 
+          orders: orders.length, 
+          products: Array.isArray(productsRes.data) ? productsRes.data.length : 0, 
+          revenue,
+          users: usersRes.data?.total || 0
+        })
+        
         setRecentOrders(orders.slice(0, 5))
       } catch (error) {
-        console.log(error)
+        console.error(error)
       } finally {
         setLoading(false)
       }
     }
+    
     if (token) fetchData()
   }, [token])
 
@@ -71,11 +81,12 @@ const Dashboard = () => {
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '48px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '48px' }}>
           {[
             { label: 'Total Orders', value: stats.orders, icon: 'inventory_2' },
             { label: 'Products', value: stats.products, icon: 'checkroom' },
             { label: 'Revenue', value: `₹${stats.revenue.toLocaleString()}`, icon: 'payments' },
+            { label: 'Total Users', value: stats.users, icon: 'group' },
           ].map((stat, i) => (
             <div key={i} style={{ backgroundColor: C.surfaceWhite, padding: '32px', borderRadius: '4px', boxShadow: '0 4px 16px rgba(108,92,71,0.04)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '24px', color: C.primary, marginBottom: '16px', display: 'block' }}>
@@ -88,10 +99,11 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Links */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '48px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '48px' }}>
           {[
             { label: 'Manage Products', path: '/admin/products', icon: 'inventory_2' },
             { label: 'Manage Orders', path: '/admin/orders', icon: 'local_shipping' },
+            { label: 'Manage Users', path: '/admin/users', icon: 'group' },
             { label: 'View Store', path: '/', icon: 'storefront' },
           ].map((item, i) => (
             <Link key={i} to={item.path}

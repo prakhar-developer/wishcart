@@ -16,42 +16,57 @@ export const CartProvider = ({ children }) => {
   }
 
   const addToCart = (product, size, quantity = 1) => {
-    const existing = cart.find(
-      item => item.product._id === product._id && item.size === size
-    )
-    if (existing) {
-      const updated = cart.map(item =>
-        item.product._id === product._id && item.size === size
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
+    setCart(prevCart => {
+      const existing = prevCart.find(
+        item => item.product._id === product._id && item.size === size
       )
-      saveCart(updated)
-    } else {
-      saveCart([...cart, { product, size, quantity }])
-    }
+      let newCart;
+      if (existing) {
+        newCart = prevCart.map(item =>
+          item.product._id === product._id && item.size === size
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        )
+      } else {
+        newCart = [...prevCart, { product, size, quantity }]
+      }
+      localStorage.setItem('wishcart_cart', JSON.stringify(newCart))
+      return newCart
+    })
   }
 
   const removeFromCart = (productId, size) => {
-    saveCart(cart.filter(
-      item => !(item.product._id === productId && item.size === size)
-    ))
+    setCart(prevCart => {
+      const newCart = prevCart.filter(
+        item => !(item.product._id === productId && item.size === size)
+      )
+      localStorage.setItem('wishcart_cart', JSON.stringify(newCart))
+      return newCart
+    })
   }
 
   const updateQuantity = (productId, size, quantity) => {
     if (quantity < 1) return removeFromCart(productId, size)
-    const updated = cart.map(item =>
-      item.product._id === productId && item.size === size
-        ? { ...item, quantity }
-        : item
-    )
-    saveCart(updated)
+    setCart(prevCart => {
+      const newCart = prevCart.map(item =>
+        item.product._id === productId && item.size === size
+          ? { ...item, quantity }
+          : item
+      )
+      localStorage.setItem('wishcart_cart', JSON.stringify(newCart))
+      return newCart
+    })
   }
 
-  const clearCart = () => saveCart([])
+  const clearCart = () => {
+    setCart([])
+    localStorage.setItem('wishcart_cart', JSON.stringify([]))
+  }
 
-  const cartTotal = cart.reduce(
-    (acc, item) => acc + item.product.price * item.quantity, 0
-  )
+  const cartTotal = cart.reduce((acc, item) => {
+    const activePrice = item.product.discountPrice > 0 ? item.product.discountPrice : item.product.price
+    return acc + activePrice * item.quantity
+  }, 0)
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0)
 

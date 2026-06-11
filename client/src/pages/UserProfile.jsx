@@ -240,10 +240,10 @@ const UserProfile = () => {
         .hover-lift:hover { transform: translateY(-2px); transition: transform 0.3s ease; }
       `}</style>
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '64px 48px', display: 'flex', gap: '64px', alignItems: 'flex-start' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '64px 20px' }} className="profile-layout">
 
         {/* ── SIDEBAR ── */}
-        <aside style={{ width: '240px', flexShrink: 0, position: 'sticky', top: '100px' }}>
+        <aside className="profile-sidebar">
           {/* Avatar + Name */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
             <div style={{
@@ -258,7 +258,7 @@ const UserProfile = () => {
             </div>
             <div>
               <p style={{ fontSize: '14px', fontWeight: 500, color: C.onSurface, marginBottom: '2px' }}>{profileData?.name || '—'}</p>
-              <p style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.onSurfaceVariant }}>Atelier Member</p>
+              <p style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.2em', color: C.onSurfaceVariant }}>Wishcart Member</p>
             </div>
           </div>
 
@@ -295,7 +295,7 @@ const UserProfile = () => {
         </aside>
 
         {/* ── MAIN CONTENT ── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '96px' }}>
+        <div className="profile-content">
 
           {/* ── PROFILE OVERVIEW ── */}
           <section id="profile" style={{ scrollMarginTop: '100px' }}>
@@ -333,7 +333,7 @@ const UserProfile = () => {
             </div>
 
             {/* Edit Form */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', maxWidth: '600px' }}>
+            <div className="profile-form-grid" style={{ maxWidth: '600px' }}>
               <div>
                 <label style={labelStyle}>Full Name</label>
                 <input value={name} onChange={e => setName(e.target.value)} style={inputStyle} placeholder="Your name" />
@@ -375,9 +375,10 @@ const UserProfile = () => {
                   const sc = statusColor(order.orderStatus)
                   return (
                     <div key={order._id} style={{
-                      backgroundColor: C.surfaceWhite, padding: '24px 32px',
+                      backgroundColor: C.surfaceWhite, padding: '24px 20px',
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       transition: 'box-shadow 0.3s ease', cursor: 'pointer', borderRadius: '2px',
+                      flexWrap: 'wrap', gap: '12px',
                     }}
                       onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(108,92,71,0.08)'}
                       onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
@@ -423,7 +424,7 @@ const UserProfile = () => {
                 <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.15em', color: C.outlineVariant }}>No saved items</p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+              <div className="profile-wishlist-grid">
                 {wishlist.map(product => (
                   <div key={product._id} style={{ backgroundColor: C.surfaceWhite, borderRadius: '2px', overflow: 'hidden' }}>
                     <Link to={`/product/${product._id}`} style={{ textDecoration: 'none' }}>
@@ -468,7 +469,7 @@ const UserProfile = () => {
             {/* Add Address Form */}
             {showAddressForm && (
               <div style={{ backgroundColor: C.surfaceWhite, padding: '32px', marginBottom: '24px', borderRadius: '2px', border: `1px solid ${C.outlineVariant}30` }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                <div className="profile-address-grid" style={{ marginBottom: '24px' }}>
                   {[
                     { label: 'Street Address', key: 'street', full: true },
                     { label: 'City', key: 'city' },

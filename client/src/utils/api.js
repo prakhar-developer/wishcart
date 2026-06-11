@@ -21,7 +21,11 @@ api.interceptors.request.use((config) => {
 // Auth endpoints
 export const authAPI = {
   signup: (data) => api.post('/api/auth/signup', data),
-  login: (data) => api.post('/api/auth/login', data)
+  login: (data) => api.post('/api/auth/login', data),
+  googleLogin: (data) => api.post('/api/auth/google', data),
+  sendOtp: (data) => api.post('/api/auth/send-otp', data),
+  verifyOtp: (data) => api.post('/api/auth/verify-otp', data),
+  loginOtp: (data) => api.post('/api/auth/login-otp', data)
 };
 
 // Products endpoints

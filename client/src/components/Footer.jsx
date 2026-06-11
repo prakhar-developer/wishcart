@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 
 const Footer = () => {
   return (
-    <footer style={{ backgroundColor: '#f3f4f1', width: '100%', padding: '80px 48px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', maxWidth: '1536px', margin: '0 auto', gap: '48px', flexWrap: 'wrap' }}>
+    <footer style={{ backgroundColor: '#f3f4f1', width: '100%', padding: '80px 48px' }} className="section-responsive">
+      <div className="footer-wrapper" style={{ maxWidth: '1536px', margin: '0 auto' }}>
 
         {/* Brand */}
         <div style={{ maxWidth: '280px' }}>
@@ -16,7 +16,7 @@ const Footer = () => {
         </div>
 
         {/* Links */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '48px' }}>
+        <div className="footer-grid">
           {[
             { title: 'Discover', links: [{ label: 'New Arrivals', path: '/shop' }, { label: 'Outfit Builder', path: '/outfit-builder' }, { label: 'Wishlist', path: '/wishlist' }] },
             { title: 'Archive', links: [{ label: 'My Orders', path: '/orders' }, { label: 'Cart', path: '/cart' }] },
@@ -41,7 +41,7 @@ const Footer = () => {
       </div>
 
       {/* Bottom */}
-      <div style={{ maxWidth: '1536px', margin: '80px auto 0', paddingTop: '32px', borderTop: '1px solid rgba(175,179,176,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="footer-bottom" style={{ maxWidth: '1536px', margin: '80px auto 0', paddingTop: '32px', borderTop: '1px solid rgba(175,179,176,0.2)' }}>
         <p style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#645e5b', fontFamily: 'Manrope' }}>
           © 2026 WishCart. All Rights Reserved.
         </p>

@@ -14,7 +14,7 @@ const heroSlides = [
 const features = [
   { icon: 'smart_toy', title: 'AI Outfit Builder', desc: 'Get AI-generated outfit suggestions based on your personal style and atmospheric mood.', cta: 'Launch Now', path: '/outfit-builder' },
   { icon: 'auto_awesome', title: 'For You Feed', desc: 'Personalized product recommendations curated just for you through our intelligent neural engine.', cta: 'Discover', path: '/for-you' },
-  { icon: 'shopping_bag', title: 'New Arrivals', desc: "Fresh drops in Men's, Women's & Accessories, refreshed weekly with exclusive atelier pieces.", cta: 'Shop All', path: '/shop' },
+  { icon: 'shopping_bag', title: 'New Arrivals', desc: "Fresh drops in Men's, Women's & Accessories, refreshed weekly with exclusive wishcart pieces.", cta: 'Shop All', path: '/shop' },
 ]
 
 const categories = [
@@ -165,14 +165,6 @@ const Home = () => {
           70% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(108, 92, 71, 0); }
           100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(108, 92, 71, 0); }
         }
-        .floating-stylist-btn {
-          animation: pulseGlow 2.5s infinite;
-          transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .floating-stylist-btn:hover {
-          background-color: #5f503c !important;
-          transform: scale(1.05);
-        }
       `}</style>
 
       {/* ── HERO SLIDESHOW ── */}
@@ -184,7 +176,7 @@ const Home = () => {
           </div>
         ))}
 
-        <div style={{ position: 'relative', zIndex: 10, padding: '0 64px', maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
+        <div className="home-hero-content" style={{ position: 'relative', zIndex: 10, maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
           <div style={{ maxWidth: '600px' }}>
             <p style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', marginBottom: '16px', fontWeight: 500 }}>Luminous Spring 2025</p>
             <h1 style={{ fontSize: 'clamp(48px,7vw,80px)', fontWeight: 200, letterSpacing: '-0.02em', lineHeight: 1.05, color: '#fff', marginBottom: '20px' }}>Dress Your<br />Identity</h1>
@@ -204,10 +196,10 @@ const Home = () => {
       </section>
 
       {/* ── FEATURES SECTION ── */}
-      <section style={{ backgroundColor: '#f0ebe3', padding: '80px 64px' }}>
+      <section className="section-responsive" style={{ backgroundColor: '#f0ebe3', paddingTop: '80px', paddingBottom: '80px' }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
           <p style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#6c5c47', marginBottom: '48px', fontWeight: 600, textAlign: 'center' }}>Why WishCart</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
             {features.map((f, i) => (
               <div key={i} onMouseEnter={() => setHoveredFeature(i)} onMouseLeave={() => setHoveredFeature(null)}
                 style={{ padding: '36px 32px', backgroundColor: hoveredFeature === i ? '#fff' : '#faf9f7', border: `1px solid ${hoveredFeature === i ? '#6c5c47' : 'rgba(108,92,71,0.15)'}`, transition: 'all 0.5s ease', cursor: 'pointer' }}
@@ -227,13 +219,13 @@ const Home = () => {
       </section>
 
       {/* ── SHOP BY CATEGORY ── */}
-      <section style={{ padding: '80px 64px', backgroundColor: '#fef8f5' }}>
+      <section className="section-responsive" style={{ paddingTop: '80px', paddingBottom: '80px', backgroundColor: '#fef8f5' }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '36px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '36px', flexWrap: 'wrap', gap: '12px' }}>
             <h2 style={{ fontSize: '28px', fontWeight: 300, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#2f3331' }}>The Curations</h2>
             <Link to="/shop" style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6c5c47', textDecoration: 'none', borderBottom: '1px solid #6c5c47', paddingBottom: '2px' }}>View All Categories</Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', height: '600px' }}>
+          <div className="home-categories-grid">
             {categories.map((cat, i) => (
               <Link key={i} to={cat.path} onMouseEnter={() => setHoveredCategory(i)} onMouseLeave={() => setHoveredCategory(null)}
                 style={{ position: 'relative', overflow: 'hidden', textDecoration: 'none', display: 'block', height: '100%' }}>
@@ -250,11 +242,11 @@ const Home = () => {
       </section>
 
       {/* ── FEATURED PRODUCTS COLLECTION ── */}
-      <section style={{ padding: '80px 64px', backgroundColor: '#faf9f7' }}>
+      <section className="section-responsive" style={{ paddingTop: '80px', paddingBottom: '80px', backgroundColor: '#faf9f7' }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '48px' }}>
             <p style={{ fontSize: '11px', letterSpacing: '0.25em', textTransform: 'uppercase', color: '#6c5c47', marginBottom: '12px', fontWeight: 600 }}>Featured Edit</p>
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 200, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#2f3331', margin: 0 }}>Atelier Inventory</h2>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 200, letterSpacing: '0.05em', textTransform: 'uppercase', color: '#2f3331', margin: 0 }}>Wishcart Inventory</h2>
             <div style={{ width: '40px', height: '1px', backgroundColor: '#6c5c47', margin: '16px auto 0' }} />
           </div>
 
@@ -267,7 +259,7 @@ const Home = () => {
               <p style={{ fontSize: '12px', color: '#6c5c47' }}>No products available in our inventory. Check back soon.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '32px' }}>
+            <div className="home-products-grid">
               {products.map((product) => {
                 return (
                   <div
@@ -329,10 +321,10 @@ const Home = () => {
       </section>
 
       {/* ── AI BANNER ── */}
-      <section style={{ backgroundColor: '#2f3331', padding: '100px 64px', overflow: 'hidden', position: 'relative' }}>
+      <section className="section-responsive" style={{ backgroundColor: '#2f3331', paddingTop: '100px', paddingBottom: '100px', overflow: 'hidden', position: 'relative' }}>
         <div style={{ position: 'absolute', top: 0, left: '25%', width: '384px', height: '384px', backgroundColor: 'rgba(108,92,71,0.12)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: 0, right: '25%', width: '384px', height: '384px', backgroundColor: 'rgba(62,71,83,0.12)', borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: '1440px', margin: '0 auto', position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '64px', flexWrap: 'wrap' }}>
+        <div className="home-ai-banner-content" style={{ maxWidth: '1440px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{ maxWidth: '560px' }}>
             <p style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#d8c3aa', marginBottom: '20px', fontWeight: 500 }}>Intelligent Curation</p>
             <h2 style={{ fontSize: 'clamp(36px,5vw,56px)', fontWeight: 200, letterSpacing: '-0.02em', lineHeight: 1.1, color: '#faf9f7', marginBottom: '24px' }}>
@@ -342,8 +334,8 @@ const Home = () => {
             <p style={{ fontSize: '16px', color: 'rgba(250,249,247,0.65)', lineHeight: 1.7, marginBottom: '36px' }}>Step into a personalized boutique experience where artificial intelligence understands your aesthetic silhouette before you do.</p>
             <button onClick={() => setShowAiModal(true)} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '16px 40px', backgroundColor: '#d8c3aa', color: '#2f3331', textDecoration: 'none', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Launch AI Stylist</button>
           </div>
-          <div style={{ border: '1px solid rgba(255,255,255,0.1)', padding: '8px', backgroundColor: 'rgba(250,249,247,0.05)', backdropFilter: 'blur(4px)', flexShrink: 0 }}>
-            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvk1vBlZ4edMu_JL1GVKeyFL_q4wPhYZ8pkWJLdM73PLg1RbJDnL9wHWYUgDjYIdXfX4wSnBjP9YZqE9K5r8GUAuJ50nHz8CjJ-c0-ILMZ7Hc0vDz2tzpckwYesn5vN4vTjA5YyZJozE6AqPVijlrhGFut3uyzkysN9CTrDcgsUye4A_omaNun3mYE-4HTlsQrU0DdimrOb3TwovclZiA0FpO3CZ9mKAs22UIa_IRJd9Up6N5ngMfPcp_3-v0p2VCVKNg9oTHB0J9n" alt="AI Interface" style={{ width: '380px', height: '460px', objectFit: 'cover', display: 'block' }} />
+          <div className="home-ai-image-wrap" style={{ border: '1px solid rgba(255,255,255,0.1)', padding: '8px', backgroundColor: 'rgba(250,249,247,0.05)', backdropFilter: 'blur(4px)' }}>
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvk1vBlZ4edMu_JL1GVKeyFL_q4wPhYZ8pkWJLdM73PLg1RbJDnL9wHWYUgDjYIdXfX4wSnBjP9YZqE9K5r8GUAuJ50nHz8CjJ-c0-ILMZ7Hc0vDz2tzpckwYesn5vN4vTjA5YyZJozE6AqPVijlrhGFut3uyzkysN9CTrDcgsUye4A_omaNun3mYE-4HTlsQrU0DdimrOb3TwovclZiA0FpO3CZ9mKAs22UIa_IRJd9Up6N5ngMfPcp_3-v0p2VCVKNg9oTHB0J9n" alt="AI Interface" style={{ width: '380px', maxWidth: '100%', height: '460px', objectFit: 'cover', display: 'block' }} />
           </div>
         </div>
       </section>
@@ -381,7 +373,7 @@ const Home = () => {
       {/* AI Stylist Modal */}
       {showAiModal && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(29, 27, 25, 0.45)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-          <div style={{ backgroundColor: '#faf9f7', borderRadius: '4px', maxWidth: '800px', width: '100%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,0.15)', border: '1px solid rgba(108,92,71,0.1)' }}>
+          <div style={{ backgroundColor: '#faf9f7', borderRadius: '4px', maxWidth: '800px', width: '100%', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 24px 64px rgba(0,0,0,0.15)', border: '1px solid rgba(108,92,71,0.1)', margin: '0 8px' }}>
             
             {/* Close button */}
             <button
@@ -400,7 +392,7 @@ const Home = () => {
             <div style={{ padding: '40px' }}>
               <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '32px', color: '#6c5c47', marginBottom: '12px' }}>auto_awesome</span>
-                <h3 style={{ fontSize: '24px', fontWeight: 200, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#1d1b19', margin: '0 0 8px' }}>Atelier AI Stylist</h3>
+                <h3 style={{ fontSize: '24px', fontWeight: 200, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#1d1b19', margin: '0 0 8px' }}>Wishcart AI Stylist</h3>
                 <p style={{ fontSize: '12px', color: '#5c605d', maxWidth: '460px', margin: '0 auto', lineHeight: 1.6 }}>
                   Upload your photo and select an occasion. Our Gemini stylist will generate matching street combos tailored to your silhouette from our available collection.
                 </p>
@@ -412,7 +404,7 @@ const Home = () => {
                   <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#6c5c47', marginBottom: '16px' }}>lock</span>
                   <h4 style={{ fontSize: '16px', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px', color: '#2f3331' }}>Authentication Required</h4>
                   <p style={{ fontSize: '13px', color: '#5c605d', maxWidth: '380px', margin: '0 auto 24px', lineHeight: 1.7 }}>
-                    Unlock the Atelier AI Stylist by logging in to your account. This allows our neural stylist to reference active store collections and coordinate products.
+                    Unlock the Wishcart AI Stylist by logging in to your account. This allows our neural stylist to reference active store collections and coordinate products.
                   </p>
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                     <button
@@ -438,7 +430,7 @@ const Home = () => {
               ) : (
                 <div>
                   {!aiResponse && !aiGenerating && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', alignItems: 'start' }}>
+                    <div className="ai-modal-input-grid">
                       {/* Image Upload Column */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <label style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#6c5c47', fontWeight: 600 }}>Your Style Portrait</label>
@@ -538,7 +530,7 @@ const Home = () => {
                   {aiGenerating && (
                     <div style={{ textAlign: 'center', padding: '64px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                       <div style={{ border: '3px solid #f0ebe3', borderTop: '3px solid #6c5c47', borderRadius: '50%', width: '48px', height: '48px', animation: 'spin 1s linear infinite', marginBottom: '24px' }} />
-                      <p style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#6c5c47', fontWeight: 600, margin: '0 0 8px' }}>Atelier Intelligence Active</p>
+                      <p style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#6c5c47', fontWeight: 600, margin: '0 0 8px' }}>Wishcart Intelligence Active</p>
                       <p style={{ fontSize: '13px', color: '#5c605d', fontStyle: 'italic', margin: 0 }}>
                         "{stylistTips}"
                       </p>
@@ -557,7 +549,7 @@ const Home = () => {
                       </div>
 
                       {/* Combos Grid */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                      <div className="ai-combos-grid">
                         {aiResponse.combos?.map((combo, idx) => (
                           <div key={idx} style={{ border: '1px solid rgba(108,92,71,0.15)', borderRadius: '4px', padding: '24px', backgroundColor: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 32px rgba(108,92,71,0.02)' }}>
                             <div>

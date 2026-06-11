@@ -31,21 +31,21 @@ const Cart = () => {
 
   return (
     <div style={{ backgroundColor: C.bg, minHeight: '100vh', paddingTop: '120px', paddingBottom: '80px', fontFamily: 'Manrope' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 40px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
         <div style={{ marginBottom: '56px' }}>
           <span style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.tertiary, display: 'block', marginBottom: '8px' }}>Current Edit</span>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 300, color: C.onSurface, letterSpacing: '-0.02em' }}>Bag <span style={{ fontStyle: 'italic' }}>Summary</span></h1>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        <div className="cart-layout">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             {cart.map((item, i) => (
-              <div key={i} style={{ backgroundColor: C.surface, borderRadius: '4px', padding: '18px', display: 'grid', gridTemplateColumns: '100px 1fr auto', gap: '16px', alignItems: 'center' }}>
-                <img src={item.product?.images?.[0] || 'https://placehold.co/100x120?text=W'} alt={item.product?.name} style={{ width: '100px', height: '120px', objectFit: 'cover', borderRadius: '2px', backgroundColor: C.surfaceHigh }} />
-                <div>
+              <div key={i} style={{ backgroundColor: C.surface, borderRadius: '4px', padding: '18px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+                <img src={item.product?.images?.[0] || 'https://placehold.co/100x120?text=W'} alt={item.product?.name} style={{ width: '100px', height: '120px', objectFit: 'cover', borderRadius: '2px', backgroundColor: C.surfaceHigh, flexShrink: 0 }} />
+                <div style={{ flex: '1 1 160px', minWidth: 0 }}>
                   <p style={{ margin: 0, fontSize: '15px', fontWeight: 500, color: C.onSurface }}>{item.product?.name}</p>
                   <p style={{ margin: '6px 0', fontSize: '11px', color: C.onSurfaceVariant, textTransform: 'uppercase', letterSpacing: '0.12em' }}>{item.product?.category || 'Uncategorized'} • Size: {item.size}</p>
-                  <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: C.primary }}>₹{item.product?.price?.toLocaleString()}</p>
+                  <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: C.primary }}>₹{(item.product?.discountPrice > 0 ? item.product?.discountPrice : item.product?.price)?.toLocaleString()}</p>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: C.surfaceHigh, borderRadius: '999px', padding: '4px 8px' }}>
