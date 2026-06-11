@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import api from "../utils/api";
 
 export default function ForYou() {
   const [recommendations, setRecommendations] = useState([]);
@@ -19,9 +17,7 @@ export default function ForYou() {
           setLoading(false);
           return;
         }
-        const res = await axios.get(`${API}/api/history/for-you`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get('/api/history/for-you');
         setRecommendations(res.data.recommendations || []);
       } catch (err) {
         setError("Could not load recommendations. Please try again.");
